@@ -1,2 +1,2 @@
 01.09.2021: 645[medium|success], 565[easy|success]
-02.09.2021: 136[easy|A]
+02.09.2021: 136[easy|A], 95[medium|B]
