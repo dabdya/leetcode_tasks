@@ -1,4 +1,4 @@
 01.09.2021: 645[medium|success], 565[easy|success]
 02.09.2021: 136[easy|A], 95[medium|B]
 03.09.2021: 416[medium|A], 494[medium|A]
-04.09.2021: 53[easy|A], 70[easy|success]
+04.09.2021: 53[easy|A], 70[easy|success], 509[easy|success], 392[easy|success], 1991[easy|success]
