@@ -3,3 +3,4 @@
 03.09.2021: 416[medium|A], 494[medium|A]
 04.09.2021: 53[easy|A], 70[easy|success], 509[easy|success], 392[easy|success], 1991[easy|success], 1395[medium|A]
 05.09.2021: 1646[easy|success]
+06.09.2021: 1629[easy|success], 121[easy|B]
