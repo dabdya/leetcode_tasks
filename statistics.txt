@@ -6,3 +6,4 @@
 06.09.2021: 1629[easy|success], 121[easy|B]
 07.09.2021: 983[medium|A], 206[easy|success], 1043[medium|A]
 08.09.2021: 338[easy|success], 848[medium|success]
+09.09.2021: 413[medium|success]
