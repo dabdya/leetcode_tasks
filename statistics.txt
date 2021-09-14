@@ -10,3 +10,4 @@
 10.09.2021: 1992[medium|B], 309[medium|A], 740[medium|B]
 11.09.2021: 118[easy|success], 119[easy|success]
 12.09.2021: 313[medium|A]
+14.09.2021: 917[easy|success]
