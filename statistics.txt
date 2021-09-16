@@ -12,3 +12,4 @@
 12.09.2021: 313[medium|A]
 14.09.2021: 917[easy|success]
 15.09.2021: 978[medium|success]
+16.09.2021: 746[easy|success]
