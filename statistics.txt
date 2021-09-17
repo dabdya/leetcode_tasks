@@ -13,3 +13,4 @@
 14.09.2021: 917[easy|success]
 15.09.2021: 978[medium|success]
 16.09.2021: 746[easy|success]
+17.09.2021: 350[easy|success]
