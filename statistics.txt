@@ -20,9 +20,10 @@
 21.09.2021: 485[easy|success]
 22.09.2021: 1239[medium|A]
 24.09.2021: 1137[easy|success], 1094[medium|success]
+25.09.2021: 1829[medium|B]
 
 level:count[success|A|B]
 easy:19[16|2|1]
-medium:19[8|8|3]
+medium:20[8|8|4]
 hard:1[1|0|0]
-total:39[25|10|4]
+total:40[25|10|5]
