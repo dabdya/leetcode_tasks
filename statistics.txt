@@ -38,10 +38,11 @@ skip_days=[13,23,26,28,30], days=83.33%
 15.10.2021: 283[easy|success], 167[easy|success]
 16.10.2021: 344[easy|success], 557[easy|success]
 17.10.2021: 876[easy|success], 19[medium|success]
+18.10.2021: 993[easy|success]
 skip_days=[3,5,7,9,10]
 
 level:count[success|A|B]
-easy:34[30|2|2]
+easy:35[31|2|2]
 medium:38[17|12|9]
 hard:1[1|0|0]
-total:73[48|14|11]
+total:74[49|14|11]
