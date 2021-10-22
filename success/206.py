@@ -5,20 +5,21 @@
 #         self.next = next
 class Solution:
     def reverseList(self, head: Optional[ListNode]) -> Optional[ListNode]:
-        if not head:
-            return head
         
-        stack = []
+        """Bound cases"""
+        if not head: return
+        if not head.next: return head
+        
+        prev = ListNode(val=head.val)
+        head = head.next
+        
         while head.next:
-            stack.append(head.val)
-            head = head.next
+            nxt = head.next
+            head.next = prev
+            prev = head
+            head = nxt
             
-        res = ListNode(head.val)
-        
-        current = res
-        while stack:
-            nxt = ListNode(stack.pop())
-            current.next = nxt
-            current = nxt
-        return res
+        head.next = prev
+        return head
+            
             
