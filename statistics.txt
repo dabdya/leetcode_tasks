@@ -52,6 +52,6 @@ skip_days=[3,5,7,9,10]
 
 level:count[success|A|B]
 easy:44[40|2|2]
-medium:49[25|12|12]
+medium:50[26|12|12]
 hard:1[1|0|0]
-total:94[66|14|14]
+total:95[67|14|14]
