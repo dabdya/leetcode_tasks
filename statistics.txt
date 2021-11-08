@@ -58,10 +58,11 @@ skip_days=[3,5,7,9,10,28], tasks=56, days=80.65%
 04.11.2021: 404[easy|success], 1091[medium|success], 130[medium|success], 797[medium|success]
 06.11.2021: 78[medium|success], 90[medium|success]
 07.11.2021: 46[medium|success], 47[medium|success]
-skip_days=[2,5], tasks=16, days=%
+08.11.2021: 51[hard|B]
+skip_days=[2,5], tasks=17, days=%
 
 level:count[success|A|B]
 easy:47[42|2|3]
 medium:70[43|13|14]
-hard:1[1|0|0]
+hard:2[1|0|1]
 total:118[86|15|17]
