@@ -3,32 +3,25 @@ public:
     vector<vector<int>> permuteUnique(vector<int>& nums) {
         vector<bool> visited;
         visited.assign(nums.size(), false);
-        RecursiveApproach(nums, visited);
         
-        vector<vector<int>> result;
-        for (const auto& permutation: permutations) {
-            result.push_back(permutation);
-        }
-        return result;
+        sort(begin(nums), end(nums));
+        RecursiveApproach(nums, visited);
+        return permutations;
     }
 
 private:
-    set<vector<int>> permutations;
+    vector<vector<int>> permutations;
     vector<int> permutation;
     
     void RecursiveApproach(vector<int>& nums, vector<bool>& visited) {
         
         if (permutation.size() == nums.size()) {
-            vector<int> sorted_perm(nums.size());
-            partial_sort_copy(
-                begin(permutation), end(permutation), 
-                begin(sorted_perm), end(sorted_perm));
-            
-            permutations.insert(permutation);
+            permutations.push_back(permutation);
             return;
         }
         
         for (auto i = 0u; i < nums.size(); i++) {
+            if (i > 0 && nums[i - 1] == nums[i] && !visited[i - 1]) continue;
             if (!visited[i]) {
                 
                 permutation.push_back(nums[i]);
