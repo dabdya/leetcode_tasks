@@ -30,6 +30,7 @@ struct vertex {
 	vertex* link;
 	
 	size_t len;
+	size_t label;
 };
 
 class Trie {
@@ -40,7 +41,7 @@ public:
 	size_t vertex_count = 0;
 	vertex* const root;
 	
-	void add_string(const string& s) {
+	void add_string(const string& s, size_t label) {
 		vertex* v = root;
 		for (const auto& c : s) {
 			vertex*& next_v = v->next[c - ALPH_ASCII_OFFSET];
@@ -54,6 +55,7 @@ public:
 		
 		v->terminal = true;
 		v->len = s.size();
+		v->label = label;
 	}
 	
 	void build_link_report() {
@@ -85,21 +87,27 @@ public:
 	}
 };
 
-
-vector<pair<size_t, size_t>> aho_korasik(
-	const vector<string>& w, const string& t) {
+vector<pair<size_t, size_t>> matrix_match(
+	const vector<string>& w, const vector<string>& t) {
+	
+	const size_t m = t[0].size(), n = t.size();
 	
 	Trie trie;
-	for (const auto& s: w) {
-		trie.add_string(s);
+	
+	size_t label = 0;
+	for (const auto& s : w) {
+		trie.add_string(s, label);
+		label += m;
 	}
 	
 	trie.build_link_report();
-
-	vector<pair<size_t, size_t>> occurences;
+	
+	vector<size_t> c;
+	c.assign(m*n, 0);
+	
 	vertex* v = trie.root;
-	for (size_t i = 0; i < t.size(); i++) {
-		const size_t j = t[i] - ALPH_ASCII_OFFSET;
+	for (size_t i = 0; i < n * m; i++) {
+		const size_t j = t[i / m][i % m] - ALPH_ASCII_OFFSET;
 		while (v != trie.root && v->next[j] == nullptr) {
 			v = v->link;
 		}
@@ -109,42 +117,31 @@ vector<pair<size_t, size_t>> aho_korasik(
 		
 		for (auto u = v; u != trie.root; u = u->report) {
 			if (u->terminal) {
-				occurences.push_back({i - u->len + 1, i});
+				c[max<size_t>(i - u->len + 1 - u->label, 0)]++; 
 			}
 		}
 	}
 	
+	vector<pair<size_t, size_t>> occurences;
+	for (size_t i = 0; i < c.size(); i++) {
+		if (c[i] == w.size()) {
+			occurences.push_back({i / m, i % m});
+		}
+	}
+
 	return occurences;
 }
 
 
-vector<pair<size_t, size_t>> matrix_match(
-	const vector<string>& w, const vector<string>& t) {
-
-	Trie trie;
-	for (const auto& s : w) {
-		trie.add_string(s);
-	}
-	
-	trie.build_link_report();
-	
-	return {};
-}
-
-
 int main() {
-	vector<string> w = { { "ab" }, 
-						 { "cd" } };
+	vector<string> w = { {"e"} };
 								 
-	vector<string> t = { { "xrt" },
-						 { "eab" },
-						 { "ecd" } };
+	vector<string> t = { { "xrtq" },
+						 { "eabt" },
+						 { "ecab" },
+						 { "eeca" } };
 								 
-	//cout << matrix_match(w, t) << endl;
-	
-	string p = "asfgabcc";
-	vector<string> s = { "ab", "b", "cc"};
-	cout << "Occurences: " << aho_korasik(s, p) << endl;
+	cout << matrix_match(w, t) << endl;
 }
 
 
