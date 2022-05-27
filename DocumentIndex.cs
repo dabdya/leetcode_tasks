@@ -5,63 +5,78 @@ using System.Text;
 
 namespace DocsReport
 {
-	class ReverseComparer<T> : IComparer<T> where T : IComparable {
-		public int Compare(T x, T y)
-        {
-            return -1 * x.CompareTo(y);
-        }
-	}
-
 	class DocumentOccurrences
 	{
-		public string? DocumentKey { get; set; }
-		public List<int>? OccurrencePositions { get; set; }
+		public string DocumentKey { get; set; }
+		public List<int> OccurrencePositions { get; set; }
+	}
+
+	class DocumentInfo 
+	{
+		public int StartPositionInInput { get; set; }
+		public string Key { get; set; }
 	}
     
 	class DocumentIndex
 	{
-		private SortedDictionary<int, string> documentIds;
+		private List<DocumentInfo> documentsInfo;
 		private SuffixTree<int> tree;
 		private List<int> input;
 
 		public DocumentIndex(IReadOnlyList<KeyValuePair<string, byte[]>> documents)
 		{
-			documentIds = new SortedDictionary<int, string>(new ReverseComparer<int>());
-			var documentId = 0;  // document start position in input
+			documentsInfo = new List<DocumentInfo>();
+			var startPosition = 0;
 			foreach (var document in documents) {
-				documentIds[documentId] = document.Key;
-				documentId += document.Value.Length + 1;
+				documentsInfo.Add(new DocumentInfo() { 
+					StartPositionInInput = startPosition, Key = document.Key});
+				startPosition += document.Value.Length + 1;
 			}
 
 			var intCast = documents.Select(d => d.Value.Select(x => (int)x)).ToList();
 			var inputAlphabet = Enumerable.Range(0, 256 + intCast.Count);
 			input = intCast.SelectMany((d, i) => d.Concat(new[] { 256 + i })).ToList();
-			tree = new SuffixTree<int>(input, inputAlphabet, documentIds);
+
+			Func<int, bool> isNotAlphabetSymbol = c => c.CompareTo(256) >= 0;
+			tree = new SuffixTree<int>(input, inputAlphabet, isNotAlphabetSymbol, documentsInfo);
 		}
 
 		public List<DocumentOccurrences> ReportOccurrences(byte[] pattern)
 		{
 			var w = pattern.Select(x => (int)x).ToList();
-
-			var subtree = new SuffixTree<int>.Node();	
-			if (!tree.TryGetSubtree(w, out subtree)) {
+			
+			if (!tree.TryGetSubtree(
+				w, out SuffixTree<int>.Node? subtree, out int pathLengthToReachSubtree)) {
 				return new List<DocumentOccurrences>();
 			}
 
-			var occurences = new Dictionary<string, List<int>>();
-			var leafs = subtree.Traverse(subtree.PathLength + subtree.Length);
+			var occurences = subtree.Traverse(pathLengthToReachSubtree)
+				.Select(n => new {
+					DocumentKey = n.DocumentInfo.Key, 
+					Position = input.Count - n.PathLengthToReach - n.DocumentInfo.StartPositionInInput})
+				.OrderBy(t => t.DocumentKey).ToList();
 
-			foreach (var leaf in leafs) {
-				var documentKey = documentIds[leaf.DocumentId];
-				if (!occurences.ContainsKey(documentKey)) {
-					occurences[documentKey] = new List<int>();
+			var result = new List<DocumentOccurrences>();
+			if (occurences.Count == 0) return result;
+
+			var documentOccurences = new DocumentOccurrences() { 
+				DocumentKey = occurences.First().DocumentKey,
+				OccurrencePositions = new List<int>() { occurences.First().Position }
+			};
+
+			foreach (var occurence in occurences.Skip(1)) {
+				if (occurence.DocumentKey != documentOccurences.DocumentKey) {
+					result.Add(documentOccurences);
+					documentOccurences = new DocumentOccurrences() {
+						DocumentKey = occurence.DocumentKey,
+						OccurrencePositions = new List<int>()
+					};
 				}
-				occurences[documentKey].Add(input.Count - leaf.Position - leaf.DocumentId);
+				documentOccurences.OccurrencePositions.Add(occurence.Position);
 			}
 
-			return occurences.Select(
-				p => new DocumentOccurrences() {
-					DocumentKey = p.Key, OccurrencePositions = p.Value}).ToList();
+			result.Add(documentOccurences);
+			return result;
 		}
 	}
 }

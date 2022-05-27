@@ -17,16 +17,7 @@ namespace DocsReport
 				byte[] docContent = File.ReadAllBytes(file);
 				documents.Add(new KeyValuePair<string, byte[]>(docKey, docContent));
 			}
-
-			// documents.Add(new KeyValuePair<string, byte[]>("doc1", 
-			// 	Encoding.ASCII.GetBytes("ATESTS")));
-
-			// documents.Add(new KeyValuePair<string, byte[]>("doc2", 
-			// 	Encoding.ASCII.GetBytes("GTESTYTEST")));
-
-			// documents.Add(new KeyValuePair<string, byte[]>("doc3", 
-			// 	Encoding.ASCII.GetBytes("DEFTESTS")));
-
+			
 			var docIndex = new DocumentIndex(documents);
 			var got = docIndex.ReportOccurrences(Encoding.ASCII.GetBytes("TEST"));
 			var expected = new Dictionary<string, int[]> {
@@ -34,11 +25,6 @@ namespace DocsReport
 					{ "task-Match2d.txt", new[] { 679 } },
 					{ "task-Zfunc.txt", new[] { 2813 } }
 					};
-			// var expected = new Dictionary<string, int[]> {
-			// 	{ "doc1", new[] {1, }},
-			// 	{ "doc2", new[] {1, 6}},
-			// 	{ "doc3", new[] {3,}}
-			// };
 			Console.WriteLine(AreSame(got, expected) ? "Test passed" : "Test not passed");
 
 			got = docIndex.ReportOccurrences(Encoding.UTF8.GetBytes("то есть"));

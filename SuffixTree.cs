@@ -2,41 +2,40 @@ using System.Collections.Generic;
 
 namespace DocsReport {
 
-    class SuffixTree<TChar> where TChar : IComparable<TChar>, IComparable<int>
+    class SuffixTree<TChar> where TChar : IComparable<TChar>
     {
         public class Node
         {
-            public SortedDictionary<TChar, Node> Next { get; set; }
-            public SortedDictionary<TChar, Node> Link { get; set; }
-            public Node? Parent { get; set; }
+            public SortedDictionary<TChar, Node> Next { get; set; } 
+                = new SortedDictionary<TChar, Node>();
 
-            public Node() {
-                Next = new SortedDictionary<TChar, Node>();
-                Link = new SortedDictionary<TChar, Node>();
-            }
+            public SortedDictionary<TChar, Node> Link { get; set; } 
+                = new SortedDictionary<TChar, Node>();
+                
+            public Node Parent { get; set; }
 
             public int Begin { get; set; }
             public int End { get; set; }
             public int Length { get { return End - Begin; } }
             public bool Mark { get; set; }
-            public int PathLength { get; set; }
 
-            // Leaf properties
-            public int DocumentId {get; set; }
-            public int Position {get; private set; }
+            // defined only for leafs
+            public DocumentInfo DocumentInfo {get; set; }
+            public int PathLengthToReach {get; private set; }
 
-            public List<Node> Traverse(int pathLength) {
+            public IEnumerable<Node> Traverse(int pathLengthToReachNode) {
+
                 if (Next.Count == 0) {
-                    Position = pathLength;
-                    return new List<Node>() { this };
+                    PathLengthToReach = pathLengthToReachNode;
+                    yield return this;
                 }
 
-                var result = new List<Node>();
-                foreach (var node in Next.Values) {
-                    result.AddRange(node.Traverse(pathLength + node.Length));
-                }
+                var leafs = Next.Values.Select(
+                    neighbour => neighbour.Traverse(pathLengthToReachNode + neighbour.Length));
 
-                return result;
+                foreach (var leaf in leafs.SelectMany(p => p)) {
+                    yield return leaf;
+                }
             }
         }
 
@@ -45,8 +44,8 @@ namespace DocsReport {
 
         IReadOnlyList<TChar> input;
 
-        public SuffixTree(IReadOnlyList<TChar> input, 
-            IEnumerable<TChar> inputAlphabet, SortedDictionary<int, string> documentIds) {
+        public SuffixTree(IReadOnlyList<TChar> input, IEnumerable<TChar> inputAlphabet, 
+            Func<TChar, bool> isNotAlphabetSymbol, List<DocumentInfo> documentsInfo) {
 
                 fake = new Node { Mark = false };
                 Root = new Node { Parent = fake, Begin = 0, End = 1, Mark = true };
@@ -56,20 +55,20 @@ namespace DocsReport {
                 foreach (var c in inputAlphabet)
                     fake.Next[c] = fake.Link[c] = Root;
 
-                List<int> ids = documentIds.Select(p => p.Key).ToList();
-                var idIndex = -1;
+                var idIndex = documentsInfo.Count;
 
                 var last = Root;
                 for (int i = input.Count - 1; i >= 0; i--)
                 {                   
-                    if (input[i].CompareTo(256) >= 0) {
-                        idIndex++;
+                    if (isNotAlphabetSymbol(input[i])) {
+                        idIndex--;
                     }
-                    last = Extend(input[i], input, last, ids[idIndex]);
+                    last = Extend(input[i], input, last, documentsInfo[idIndex]);
                 }
         }
 
-        private Node Extend(TChar c, IReadOnlyList<TChar> input, Node last, int documentId)
+        private Node Extend(
+            TChar c, IReadOnlyList<TChar> input, Node last, DocumentInfo documentInfo)
         {
             Node v, w;
             int i = input.Count;
@@ -78,7 +77,8 @@ namespace DocsReport {
             if (w.Next.TryGetValue(input[i], out Node u))
             {
                 int j = u.Begin;
-                for (; EqualityComparer<TChar>.Default.Equals(input[j], input[i]); j += v.Length, i += v.Length)
+                for (; EqualityComparer<TChar>.Default.Equals(input[j], input[i]); 
+                       j += v.Length, i += v.Length)
                     v = v.Next[input[i]];
                 var split = new Node { Parent = w, Begin = u.Begin, End = j, Mark = false };
                 w.Next[input[u.Begin]] = split;    // split the edge w->u
@@ -87,15 +87,17 @@ namespace DocsReport {
                 w = u.Parent = v.Link[c] = split;	// prefix-link to the new node
             }
             last = last.Link[c] = new Node { Parent = w, Begin = i, 
-                                             End = input.Count, Mark = true, DocumentId = documentId };
+                                             End = input.Count, Mark = true, DocumentInfo = documentInfo };
             return w.Next[input[i]] = last;		// attach new leaf to w
         }
 
-        public bool TryGetSubtree(List<TChar> pattern, out Node? subtree) 
+        public bool TryGetSubtree(
+            List<TChar> pattern, out Node? subtree, out int pathLengthToReachSubtree) 
         {
-            var v = Root;
             subtree = null;
-            var pathLength = 0;
+            pathLengthToReachSubtree = 0;
+
+            var v = Root;
 
             for (var i = 0; i < pattern.Count; ) {
 
@@ -111,13 +113,12 @@ namespace DocsReport {
                     }
                 }
 
+                pathLengthToReachSubtree += v.Length;
+
                 if (i == pattern.Count) {
-                    v.PathLength = pathLength;
                     subtree = v;
                     return true;
-                }
-
-                pathLength += v.Length;
+                }     
             }
 
             return false;
