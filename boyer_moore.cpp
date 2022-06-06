@@ -56,7 +56,6 @@ vector<int> build_shift(const string& s) {
 	
 	vector<int> z = z_function({ s.rbegin(), s.rend() });
 	reverse(z.begin(), z.end());
-	cout << "Z: " << z << endl;
 	
 	for (int i = 0, j = 0; i < m; i++) {
 		if (z[i] < i + 1) {
@@ -85,16 +84,16 @@ vector<int> boyer_moore(const string& t, const string& s) {
 	
 	vector<int> occurences;
 	vector<int> shift = build_shift(s);
-	cout << "Shift: " << shift << endl;
 	
-	for (int i = 0, j = 0; i <= n - m; i += shift[j + 1]) {
+	for (int i = 0, j = 0, b = 0; i <= n - m; i += shift[j + 1]) {
 		
 		j = m - 1;
-		while (j >= 0 && s[j] == t[i + j]) j--;
+		while (j >= b && s[j] == t[i + j]) j--;
 		
-		if (j < 0) {
+		if (j < b) {
+			b = m - shift[0] - 1;
 			occurences.push_back(i);
-		}		
+		} else b = 0;
 	}
 	
 	return occurences;
@@ -106,12 +105,4 @@ int main() {
 	read_data(t, s);
 	
 	vector<int> occurences = boyer_moore(t, s);
-	cout << "Occurences: " << occurences << endl;
 }
-
-
-
-
-
-
-
